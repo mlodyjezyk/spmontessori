@@ -1,0 +1,101 @@
+@import './fonts.css';
+@import './tailwind.css';
+@import './theme.css';
+
+input[data-error='true'],
+textarea[data-error='true'],
+select[data-error='true'] {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.08);
+  outline: none;
+  animation: fieldPulse 1200ms ease-in-out infinite;
+}
+
+.error-tooltip,
+.error-tooltip-inline {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  background: rgba(220, 38, 38, 0.95);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  margin-top: 6px;
+}
+
+.error-tooltip strong,
+.error-tooltip-inline strong {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  font-weight: 700;
+}
+
+@keyframes fieldPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.12); }
+  50%  { box-shadow: 0 0 0 6px rgba(220, 38, 38, 0.06); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.12); }
+}
+
+.page-container {
+  position: relative;
+  background: var(--color-background, #ffffff);
+  overflow: hidden;
+}
+
+.page-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  will-change: opacity, transform;
+  -webkit-backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
+}
+
+.page-static {
+  position: relative;
+}
+
+.page-layer,
+.page-static {
+  background: inherit;
+}
+
+.page-layer.pointer-events-none { pointer-events: none; }
+.page-layer.pointer-events-auto  { pointer-events: auto; }
+
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(8px) scale(0.995); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes pageExit {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(-8px) scale(0.995); }
+}
+
+@keyframes pageEnterFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes pageExitFade {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+.animate-page-enter      { animation: pageEnter 300ms cubic-bezier(.2,.9,.2,1) both; will-change: opacity, transform; }
+.animate-page-exit       { animation: pageExit 300ms cubic-bezier(.2,.9,.2,1) both;  will-change: opacity, transform; }
+.animate-page-enter-fade { animation: pageEnterFade 300ms cubic-bezier(.2,.9,.2,1) both; will-change: opacity; }
+.animate-page-exit-fade  { animation: pageExitFade 300ms cubic-bezier(.2,.9,.2,1) both;  will-change: opacity; }
