@@ -1,1 +1,1 @@
-# spmontessori
+# Projekt szkolny nie przygotowany do zastosowan profesjonalnych/komercyjnych
