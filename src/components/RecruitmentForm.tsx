@@ -35,7 +35,7 @@ function getSuggestedClass(dateString: string): SuggestionResult | null {
   if (classNum <= 0) {
     return {
       status: 'preschool',
-      message: Wiek przedszkolny / zerówka (rocznik ${birthYear})
+      message: 'Wiek przedszkolny / zerówka (rocznik ' + birthYear + ')'
     }
   }
 
@@ -49,7 +49,7 @@ function getSuggestedClass(dateString: string): SuggestionResult | null {
 
   return {
     status: 'out_of_range',
-    message: Rocznik ${birthYear} jest poza zakresem klas 1–8
+    message: 'Rocznik ' + birthYear + ' jest poza zakresem klas 1–8'
   }
 }
 
