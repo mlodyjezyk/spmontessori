@@ -17,7 +17,7 @@ interface SuggestionResult {
 }
 
 const FIELD_ORDER = [
-  'childFirstName', 'childLastName', 'birthDate', 'pesel', 'class',
+  'childFirstName', 'childLastName', 'birthDate', 'class',
   'parentFirstName', 'parentLastName', 'phone', 'email', 'address',
   'consent1', 'consent2',
 ]
@@ -90,7 +90,6 @@ export function RecruitmentForm() {
     const childLastNameError = validateName(getVal('childLastName'))
     if (childLastNameError) e.childLastName = childLastNameError
     if (!getVal('birthDate').trim()) e.birthDate = REQUIRED
-    if (!getVal('pesel').trim()) e.pesel = REQUIRED
     if (!getVal('class').trim()) e.class = 'Wybierz klasę'
     const parentFirstNameError = validateName(getVal('parentFirstName'))
     if (parentFirstNameError) e.parentFirstName = parentFirstNameError
@@ -257,18 +256,6 @@ export function RecruitmentForm() {
                 )}
               </div>
 
-              <div className="space-y-2 relative">
-                <Label htmlFor="pesel">PESEL dziecka *</Label>
-                <Input
-                  id="pesel"
-                  placeholder="12345678901"
-                  maxLength={11}
-                  onChange={() => clearError('pesel')}
-                  aria-invalid={!!errors.pesel}
-                  aria-describedby={errors.pesel ? 'pesel-error' : undefined}
-                />
-                <FieldError id="pesel" />
-              </div>
             </div>
 
             <div className="space-y-2 mt-6 relative">
