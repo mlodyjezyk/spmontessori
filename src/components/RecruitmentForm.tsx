@@ -114,6 +114,8 @@ export function RecruitmentForm() {
     if (suggestion?.status === 'valid') {
       setSelectedClass(String(suggestion.classNumber))
       clearError('class')
+    } else {
+      setSelectedClass('')
     }
   }
 
@@ -233,9 +235,16 @@ export function RecruitmentForm() {
                 className={`w-full rounded-md border bg-white px-3 py-2 ${errors.class ? 'border-red-500' : 'border-gray-300'}`}
               >
                 <option value="" disabled>Wybierz klasę</option>
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((classNumber) => (
-                  <option key={classNumber} value={classNumber}>Klasa {classNumber}</option>
-                ))}
+                {[1, 2, 3, 4, 5, 6, 7, 8].map((classNumber) => {
+                  const isSuggested =
+                    classSuggestion?.status === 'valid' && classSuggestion.classNumber === classNumber
+
+                  return (
+                    <option key={classNumber} value={classNumber}>
+                      Klasa {classNumber}{isSuggested ? ' (sugerowana)' : ''}
+                    </option>
+                  )
+                })}
               </select>
               <FieldError name="class" />
             </div>
