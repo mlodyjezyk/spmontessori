@@ -19,7 +19,7 @@ export function News() {
     {
       id: 2,
       title: 'Sukces naszych uczniów w konkursie matematycznym',
-      date: '2026-12-20',
+      date: '2026-10-20',
       category: 'Osiągnięcia',
       excerpt: 'Uczniowie klasy 7 zajęli I i II miejsce w wojewódzkim konkursie matematycznym. Gratulujemy!',
       time: null
