@@ -9,7 +9,7 @@ import { EMAIL_WITH_DOMAIN } from '../utils/formValidation'
 
 type ClassSuggestion =
   | { status: 'valid'; classNumber: number; message: string }
-  | { status: 'ineligible' | 'out_of_range'; message: string }
+  | { status: 'invalid_date' | 'ineligible' | 'out_of_range'; message: string }
 
 type FormErrors = Record<string, string>
 
@@ -31,23 +31,52 @@ const FIELD_ORDER = [
 function getClassSuggestion(dateString: string): ClassSuggestion | null {
   if (!dateString) return null
 
-
-  if (!Number.isInteger(birthYear) || birthYear < 1900) {
+  const dateParts = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateString)
+  if (!dateParts) {
     return {
-      status: 'ineligible',
+      status: 'invalid_date',
       message: 'Nieprawidłowa data urodzenia. Wpisz poprawną datę.',
     }
   }
-  const classNumber = 2027 - birthYear - 6
 
-{
+  const birthYear = Number(dateParts[1])
+  const birthMonth = Number(dateParts[2])
+  const birthDay = Number(dateParts[3])
+  const lastDayOfMonth = new Date(Date.UTC(birthYear, birthMonth, 0)).getUTCDate()
+
+  if (
+    birthYear < 1900 ||
+    birthMonth < 1 ||
+    birthMonth > 12 ||
+    birthDay < 1 ||
+    birthDay > lastDayOfMonth
+  ) {
+    return {
+      status: 'invalid_date',
+      message: 'Nieprawidłowa data urodzenia. Wpisz poprawną datę.',
+    }
+  }
+
+  const today = new Date()
+  const todayString = [
+    today.getFullYear(),
+    String(today.getMonth() + 1).padStart(2, '0'),
+    String(today.getDate()).padStart(2, '0'),
+  ].join('-')
+
+  if (dateString > todayString) {
+    return {
+      status: 'invalid_date',
+      message: 'Data urodzenia nie może być z przyszłości. Wpisz poprawną datę.',
+    }
+  }
 
   const classNumber = 2027 - birthYear - 6
 
   if (classNumber <= 0) {
     return {
       status: 'ineligible',
-      message: `Rocznik ${birthYear} nie kwalifikuje się do klas 1–8 w roku szkolnym 2027/2028`,
+      message: `Rocznik ${birthYear} nie kwalifikuje się do klas 1–8 w roku szkolnym 2027/2028.`,
     }
   }
 
@@ -214,9 +243,11 @@ export function RecruitmentForm() {
                       ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
                       : classSuggestion.status === 'ineligible'
                         ? 'border-amber-200 bg-amber-50 text-amber-800'
-                        : 'border-zinc-200 bg-zinc-100 text-zinc-700'
+                        : classSuggestion.status === 'invalid_date'
+                          ? 'border-red-200 bg-red-50 text-red-800'
+                          : 'border-zinc-200 bg-zinc-100 text-zinc-700'
                   }`}
-                  role="status"
+                  role={classSuggestion.status === 'invalid_date' ? 'alert' : 'status'}
                 >
                   {classSuggestion.status === 'valid' ? (
                     <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
