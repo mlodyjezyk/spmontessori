@@ -53,7 +53,7 @@ function getClassSuggestion(dateString: string): ClassSuggestion | null {
   ) {
     return {
       status: 'invalid_date',
-      message: 'Dla dinozarów programu nie przewidziano. Wpisz poprawną datę.',
+      message: 'Dla dinozaurów programu nie przewidziano. Wpisz poprawną datę.',
     }
   }
 
