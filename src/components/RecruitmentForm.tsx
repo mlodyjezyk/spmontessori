@@ -1,19 +1,129 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AlertCircle, CheckCircle2 } from 'lucide-react'
+import { AlertCircle, CheckCircle2, Info, Sparkles } from 'lucide-react'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
 import { EMAIL_WITH_DOMAIN } from '../utils/formValidation'
 
+type ClassSuggestion =
+  | { status: 'valid'; classNumber: number; message: string }
+  | { status: 'preschool' | 'out_of_range'; message: string }
+
+type FormErrors = Record<string, string>
+
+const REQUIRED_ERROR = 'To pole jest wymagane.'
+const FIELD_ORDER = [
+  'childFirstName',
+  'childLastName',
+  'birthDate',
+  'class',
+  'parentFirstName',
+  'parentLastName',
+  'phone',
+  'email',
+  'address',
+  'consent1',
+  'consent2',
+]
+
+function getClassSuggestion(dateString: string): ClassSuggestion | null {
+  const birthYear = Number(dateString.slice(0, 4))
+  if (!dateString || !Number.isInteger(birthYear)) return null
+
+  const classNumber = 2026 - birthYear - 6
+
+  if (classNumber <= 0) {
+    return {
+      status: 'preschool',
+      message: `Wiek przedszkolny / zerówka (rocznik ${birthYear})`,
+    }
+  }
+
+  if (classNumber <= 8) {
+    return {
+      status: 'valid',
+      classNumber,
+      message: `Sugerowana klasa: Klasa ${classNumber} (rocznik ${birthYear})`,
+    }
+  }
+
+  return {
+    status: 'out_of_range',
+    message: `Rocznik ${birthYear} jest poza zakresem klas 1–8`,
+  }
+}
+
 export function RecruitmentForm() {
   const [demoComplete, setDemoComplete] = useState(false)
+  const [selectedClass, setSelectedClass] = useState('')
+  const [classSuggestion, setClassSuggestion] = useState<ClassSuggestion | null>(null)
+  const [errors, setErrors] = useState<FormErrors>({})
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    const formData = new FormData(event.currentTarget)
+    const value = (name: string) => String(formData.get(name) ?? '').trim()
+    const nextErrors: FormErrors = {}
+
+    for (const name of FIELD_ORDER) {
+      if (!value(name)) nextErrors[name] = REQUIRED_ERROR
+    }
+
+    for (const name of ['childFirstName', 'childLastName', 'parentFirstName', 'parentLastName']) {
+      if (value(name) && value(name).length < 2) {
+        nextErrors[name] = 'Wpisz co najmniej 2 znaki.'
+      }
+    }
+
+    if (value('email') && !new RegExp(`^(?:${EMAIL_WITH_DOMAIN})$`).test(value('email'))) {
+      nextErrors.email = 'Nieprawidłowy adres e-mail. Sprawdź jego format, np. imie@domena.pl.'
+    }
+
+    if (!formData.has('consent1')) {
+      nextErrors.consent1 = 'Zaznacz zgodę wymaganą do udziału w rekrutacji.'
+    }
+    if (!formData.has('consent2')) {
+      nextErrors.consent2 = 'Potwierdź zapoznanie się z zasadami rekrutacji.'
+    }
+
+    setErrors(nextErrors)
+    if (Object.keys(nextErrors).length > 0) {
+      const firstInvalid = FIELD_ORDER.find((name) => nextErrors[name])
+      if (firstInvalid) document.getElementById(firstInvalid)?.focus()
+      return
+    }
+
     setDemoComplete(true)
   }
+
+  const clearError = (name: string) => {
+    setErrors((current) => {
+      if (!current[name]) return current
+      const next = { ...current }
+      delete next[name]
+      return next
+    })
+  }
+
+  const handleBirthDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    clearError('birthDate')
+    const suggestion = getClassSuggestion(event.target.value)
+    setClassSuggestion(suggestion)
+    if (suggestion?.status === 'valid') {
+      setSelectedClass(String(suggestion.classNumber))
+      clearError('class')
+    }
+  }
+
+  const FieldError = ({ name }: { name: string }) =>
+    errors[name] ? (
+      <p id={`${name}-error`} className="flex items-start gap-2 text-sm font-medium text-red-700" role="alert">
+        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+        <span>{errors[name]}</span>
+      </p>
+    ) : null
 
   if (demoComplete) {
     return (
@@ -59,21 +169,53 @@ export function RecruitmentForm() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6" noValidate>
         <Card>
           <CardHeader><CardTitle>Dane dziecka</CardTitle></CardHeader>
           <CardContent className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="childFirstName">Imię dziecka *</Label>
-              <Input id="childFirstName" name="childFirstName" minLength={2} required placeholder="np. Jan" />
+              <Input id="childFirstName" name="childFirstName" minLength={2} required placeholder="np. Jan"
+                aria-invalid={!!errors.childFirstName} aria-describedby={errors.childFirstName ? 'childFirstName-error' : undefined}
+                className={errors.childFirstName ? 'border-red-500 focus-visible:ring-red-500' : undefined}
+                onChange={() => clearError('childFirstName')} />
+              <FieldError name="childFirstName" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="childLastName">Nazwisko dziecka *</Label>
-              <Input id="childLastName" name="childLastName" minLength={2} required placeholder="np. Kowalski" />
+              <Input id="childLastName" name="childLastName" minLength={2} required placeholder="np. Kowalski"
+                aria-invalid={!!errors.childLastName} aria-describedby={errors.childLastName ? 'childLastName-error' : undefined}
+                className={errors.childLastName ? 'border-red-500 focus-visible:ring-red-500' : undefined}
+                onChange={() => clearError('childLastName')} />
+              <FieldError name="childLastName" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="birthDate">Data urodzenia *</Label>
-              <Input id="birthDate" name="birthDate" type="date" required />
+              <Input id="birthDate" name="birthDate" type="date" required onChange={handleBirthDateChange}
+                aria-invalid={!!errors.birthDate} aria-describedby={errors.birthDate ? 'birthDate-error' : undefined}
+                className={errors.birthDate ? 'border-red-500 focus-visible:ring-red-500' : undefined} />
+              <FieldError name="birthDate" />
+              {classSuggestion && (
+                <div
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${
+                    classSuggestion.status === 'valid'
+                      ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                      : classSuggestion.status === 'preschool'
+                        ? 'border-amber-200 bg-amber-50 text-amber-800'
+                        : 'border-zinc-200 bg-zinc-100 text-zinc-700'
+                  }`}
+                  role="status"
+                >
+                  {classSuggestion.status === 'valid' ? (
+                    <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                  ) : classSuggestion.status === 'preschool' ? (
+                    <Info className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                  ) : (
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                  )}
+                  <span>{classSuggestion.message}</span>
+                </div>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="class">Klasa *</Label>
@@ -81,14 +223,21 @@ export function RecruitmentForm() {
                 id="class"
                 name="class"
                 required
-                defaultValue=""
-                className="w-full rounded-md border border-gray-300 bg-white px-3 py-2"
+                value={selectedClass}
+                onChange={(event) => {
+                  setSelectedClass(event.target.value)
+                  clearError('class')
+                }}
+                aria-invalid={!!errors.class}
+                aria-describedby={errors.class ? 'class-error' : undefined}
+                className={`w-full rounded-md border bg-white px-3 py-2 ${errors.class ? 'border-red-500' : 'border-gray-300'}`}
               >
                 <option value="" disabled>Wybierz klasę</option>
                 {[1, 2, 3, 4, 5, 6, 7, 8].map((classNumber) => (
                   <option key={classNumber} value={classNumber}>Klasa {classNumber}</option>
                 ))}
               </select>
+              <FieldError name="class" />
             </div>
           </CardContent>
         </Card>
@@ -98,15 +247,27 @@ export function RecruitmentForm() {
           <CardContent className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="parentFirstName">Imię rodzica *</Label>
-              <Input id="parentFirstName" name="parentFirstName" minLength={2} required placeholder="np. Anna" />
+              <Input id="parentFirstName" name="parentFirstName" minLength={2} required placeholder="np. Anna"
+                aria-invalid={!!errors.parentFirstName} aria-describedby={errors.parentFirstName ? 'parentFirstName-error' : undefined}
+                className={errors.parentFirstName ? 'border-red-500 focus-visible:ring-red-500' : undefined}
+                onChange={() => clearError('parentFirstName')} />
+              <FieldError name="parentFirstName" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="parentLastName">Nazwisko rodzica *</Label>
-              <Input id="parentLastName" name="parentLastName" minLength={2} required placeholder="np. Kowalska" />
+              <Input id="parentLastName" name="parentLastName" minLength={2} required placeholder="np. Kowalska"
+                aria-invalid={!!errors.parentLastName} aria-describedby={errors.parentLastName ? 'parentLastName-error' : undefined}
+                className={errors.parentLastName ? 'border-red-500 focus-visible:ring-red-500' : undefined}
+                onChange={() => clearError('parentLastName')} />
+              <FieldError name="parentLastName" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="phone">Telefon kontaktowy *</Label>
-              <Input id="phone" name="phone" type="tel" required placeholder="+48 123 456 789" />
+              <Input id="phone" name="phone" type="tel" required placeholder="+48 123 456 789"
+                aria-invalid={!!errors.phone} aria-describedby={errors.phone ? 'phone-error' : undefined}
+                className={errors.phone ? 'border-red-500 focus-visible:ring-red-500' : undefined}
+                onChange={() => clearError('phone')} />
+              <FieldError name="phone" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email *</Label>
@@ -118,25 +279,38 @@ export function RecruitmentForm() {
                 pattern={EMAIL_WITH_DOMAIN}
                 title="Wpisz adres w formacie imie@domena.pl"
                 placeholder="email@przyklad.pl"
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? 'email-error' : undefined}
+                className={errors.email ? 'border-red-500 focus-visible:ring-red-500' : undefined}
+                onChange={() => clearError('email')}
               />
+              <FieldError name="email" />
             </div>
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="address">Adres zamieszkania *</Label>
-              <Input id="address" name="address" required placeholder="ul. Przykładowa 1, 62-500 Konin" />
+              <Input id="address" name="address" required placeholder="ul. Przykładowa 1, 62-500 Konin"
+                aria-invalid={!!errors.address} aria-describedby={errors.address ? 'address-error' : undefined}
+                className={errors.address ? 'border-red-500 focus-visible:ring-red-500' : undefined}
+                onChange={() => clearError('address')} />
+              <FieldError name="address" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="space-y-4 p-6">
-            <label className="flex items-start gap-3 text-sm text-gray-700">
-              <input type="checkbox" name="consent1" required className="mt-1" />
+            <label className={`flex items-start gap-3 text-sm ${errors.consent1 ? 'text-red-800' : 'text-gray-700'}`}>
+              <input type="checkbox" name="consent1" required className="mt-1" aria-invalid={!!errors.consent1}
+                aria-describedby={errors.consent1 ? 'consent1-error' : undefined} onChange={() => clearError('consent1')} />
               <span>Wyrażam zgodę na przetwarzanie danych osobowych w celu przeprowadzenia procesu rekrutacji. *</span>
             </label>
-            <label className="flex items-start gap-3 text-sm text-gray-700">
-              <input type="checkbox" name="consent2" required className="mt-1" />
+            <FieldError name="consent1" />
+            <label className={`flex items-start gap-3 text-sm ${errors.consent2 ? 'text-red-800' : 'text-gray-700'}`}>
+              <input type="checkbox" name="consent2" required className="mt-1" aria-invalid={!!errors.consent2}
+                aria-describedby={errors.consent2 ? 'consent2-error' : undefined} onChange={() => clearError('consent2')} />
               <span>Oświadczam, że zapoznałem/am się z zasadami rekrutacji i regulaminem szkoły. *</span>
             </label>
+            <FieldError name="consent2" />
             <label className="flex items-start gap-3 text-sm text-gray-700">
               <input type="checkbox" name="consent3" className="mt-1" />
               <span>Wyrażam zgodę na kontakt w sprawie rekrutacji.</span>
