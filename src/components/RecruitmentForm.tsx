@@ -35,7 +35,7 @@ function getSuggestedClass(dateString: string): SuggestionResult | null {
   if (classNum <= 0) {
     return {
       status: 'preschool',
-      message: 'Wiek przedszkolny / zerówka (rocznik ' + birthYear + ')'
+      message: `Wiek przedszkolny / zerówka (rocznik ${birthYear})`
     }
   }
 
@@ -43,13 +43,13 @@ function getSuggestedClass(dateString: string): SuggestionResult | null {
     return {
       status: 'valid',
       classNum: String(classNum),
-      message: Sugerowana klasa: Klasa ${classNum} (rocznik ${birthYear})
+      message: `Sugerowana klasa: Klasa ${classNum} (rocznik ${birthYear})`
     }
   }
 
   return {
     status: 'out_of_range',
-    message: 'Rocznik ' + birthYear + ' jest poza zakresem klas 1–8'
+    message: `Rocznik ${birthYear} jest poza zakresem klas 1–8`
   }
 }
 
@@ -235,7 +235,7 @@ export function RecruitmentForm() {
                     setSelectedClass(e.target.value)
                     clearError('class')
                   }}
-                  className={w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-600 ${errors.class ? 'border-red-600' : ''}}
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-600 ${errors.class ? 'border-red-600' : ''}`}
                   aria-invalid={!!errors.class}
                   aria-describedby={errors.class ? 'class-error' : undefined}
                 >
