@@ -6,6 +6,7 @@ import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { GraduationCap, AlertCircle } from 'lucide-react'
+import { signInToDemo } from '../utils/demoAccess'
 
 /** Strona logowania nauczyciela do panelu administracyjnego. */
 export function TeacherLoginPage() {
@@ -28,6 +29,11 @@ export function TeacherLoginPage() {
     setError('')
 
     try {
+      if (signInToDemo('teacher', email, password)) {
+        navigate('/panel-nauczyciela')
+        return
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
       if (error) {
@@ -78,7 +84,8 @@ export function TeacherLoginPage() {
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
-                  type="email"
+                  type="text"
+                  inputMode="email"
                   placeholder="nauczyciel@szkola.pl"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -108,6 +115,12 @@ export function TeacherLoginPage() {
                 {loading ? 'Logowanie...' : 'Zaloguj się'}
               </Button>
             </form>
+
+            <div role="note" className="mt-5 rounded-xl border border-purple-200 bg-purple-50 p-3 text-sm text-purple-900">
+              <p className="font-medium">Dostęp demonstracyjny — tylko przykładowe dane</p>
+              <p className="mt-1">Email: <code>nauczyciel@gmail</code> · Hasło: <code>haslo123</code></p>
+              <p className="mt-1 text-xs">Logowanie demo jest lokalne w tej karcie przeglądarki. Nie używaj tych danych jako prawdziwego konta.</p>
+            </div>
 
             <div className="mt-6 text-center">
               <button

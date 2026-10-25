@@ -8,6 +8,7 @@ import { Badge } from '../components/ui/badge'
 import { BookOpen, Bell, Info, Calendar, LogOut, Loader2 } from 'lucide-react'
 import { format } from 'date-fns'
 import { pl } from 'date-fns/locale'
+import { getDemoRole, signOutFromDemo } from '../utils/demoAccess'
 
 /** Dane zalogowanego użytkownika (uczeń). */
 interface User {
@@ -66,6 +67,7 @@ export function StudentPlatformPage() {
   const [infos, setInfos]                 = useState<InfoItem[]>([])
   const [loading, setLoading]             = useState(true)
   const [loadError, setLoadError]         = useState(false)
+  const [demoMode, setDemoMode]           = useState(false)
 
   useEffect(() => {
     checkAuth()
@@ -78,6 +80,37 @@ export function StudentPlatformPage() {
    */
   const checkAuth = async () => {
     try {
+      if (getDemoRole() === 'student') {
+        setDemoMode(true)
+        setUser({ name: 'Uczeń demonstracyjny', email: 'uczen@gmail' })
+        setAnnouncements([{
+          id: 'demo-announcement',
+          title: 'Witamy na platformie ucznia',
+          content: 'To przykładowa aktualność. Dane widoczne w trybie demonstracyjnym nie pochodzą ze szkoły.',
+          createdAt: new Date().toISOString(),
+          createdBy: 'Administrator (demo)',
+        }])
+        setAssignments([{
+          id: 'demo-assignment',
+          title: 'Przykładowe zadanie',
+          description: 'To przykładowa treść zadania, która pokazuje wygląd platformy.',
+          dueDate: '2027-01-15',
+          subject: 'Przykładowy przedmiot',
+          createdAt: new Date().toISOString(),
+          createdBy: 'Nauczyciel (demo)',
+        }])
+        setInfos([{
+          id: 'demo-info',
+          title: 'Informacja demonstracyjna',
+          content: 'Platforma jest prezentowana w trybie demo. Nie są tu wyświetlane rzeczywiste informacje szkolne.',
+          category: 'Demo',
+          createdAt: new Date().toISOString(),
+          createdBy: 'Administrator (demo)',
+        }])
+        setLoading(false)
+        return
+      }
+
       const { data: { session }, error } = await supabase.auth.getSession()
 
       if (error || !session) {
@@ -142,6 +175,11 @@ export function StudentPlatformPage() {
 
   /** Kończy sesję Supabase i wraca na stronę główną. */
   const handleLogout = async () => {
+    signOutFromDemo()
+    if (demoMode) {
+      navigate('/')
+      return
+    }
     await supabase.auth.signOut()
     navigate('/')
   }
@@ -189,6 +227,11 @@ export function StudentPlatformPage() {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {demoMode && (
+          <div role="note" className="mb-6 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950">
+            Tryb demonstracyjny: poniższe treści są przykładowe. Nic nie jest pobierane ani zapisywane.
+          </div>
+        )}
         <Tabs defaultValue="announcements" className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-8">
             <TabsTrigger value="announcements">

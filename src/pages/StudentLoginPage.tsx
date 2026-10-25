@@ -6,6 +6,7 @@ import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { BookOpen, AlertCircle } from 'lucide-react'
+import { signInToDemo } from '../utils/demoAccess'
 
 /**
  * Strona logowania ucznia do platformy edukacyjnej.
@@ -37,6 +38,11 @@ export function StudentLoginPage() {
     setError('')
 
     try {
+      if (signInToDemo('student', email, password)) {
+        navigate('/platforma-ucznia')
+        return
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
       if (error) {
@@ -82,7 +88,8 @@ export function StudentLoginPage() {
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
-                type="email"
+                type="text"
+                inputMode="email"
                 placeholder="uczen@szkola.pl"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -106,6 +113,12 @@ export function StudentLoginPage() {
               {loading ? 'Logowanie...' : 'Zaloguj się'}
             </Button>
           </form>
+
+          <div role="note" className="mt-5 rounded-md border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">
+            <p className="font-medium">Dostęp demonstracyjny — tylko przykładowe dane</p>
+            <p className="mt-1">Email: <code>uczen@gmail</code> · Hasło: <code>haslo123</code></p>
+            <p className="mt-1 text-xs">Logowanie demo jest lokalne w tej karcie przeglądarki. Nie używaj tych danych jako prawdziwego konta.</p>
+          </div>
 
           <div className="mt-6 text-center">
             <button

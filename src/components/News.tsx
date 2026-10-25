@@ -10,7 +10,7 @@ export function News() {
   const news = [
     {
       id: 1,
-      title: 'Dzień Otwarty - 15 lutego 2026',
+      title: 'Dzień Otwarty - 15 listopada 2026',
       date: '2026-11-15',
       category: 'Rekrutacja',
       excerpt: 'Zapraszamy wszystkich zainteresowanych rodziców na dzień otwarty. Możliwość zwiedzenia szkoły, poznania kadry i metody Montessori.',
@@ -25,62 +25,62 @@ export function News() {
       time: null
     },
     {
-      id: 3,
-      title: 'Warsztaty dla rodziców - Metoda Montessori w domu',
-      date: '2027-02-01',
-      category: 'Warsztat',
-      excerpt: 'Cykl warsztatów dla rodziców, jak wspierać rozwój dziecka w duchu Montessori w codziennym życiu.',
-      time: '17:00 - 19:00'
-    },
-    {
       id: 4,
       title: 'Zimowy obóz naukowy',
       date: '2027-01-20',
       category: 'Wydarzenie',
       excerpt: 'Zapraszamy uczniów klas 4-8 na zimowy obóz naukowy w Zakopanem. Program łączy edukację z rekreacją.',
       time: '20-27 stycznia'
+    },
+    {
+      id: 3,
+      title: 'Warsztaty dla rodziców - Metoda Montessori w domu',
+      date: '2027-02-01',
+      category: 'Warsztat',
+      excerpt: 'Cykl warsztatów dla rodziców, jak wspierać rozwój dziecka w duchu Montessori w codziennym życiu.',
+      time: '17:00 - 19:00'
     }
   ];
 
   const events = [
     {
-      date: '15',
-      month: 'Lut',
+      date: '2026-11-15',
       title: 'Dzień Otwarty',
       time: '10:00 - 14:00',
       description: 'Zwiedzanie szkoły i spotkanie z nauczycielami'
     },
     {
-      date: '01',
-      month: 'Lut',
+      date: '2027-01-20',
+      title: 'Zimowy obóz naukowy',
+      time: '20-27 stycznia',
+      description: 'Obóz naukowy dla uczniów klas 4-8'
+    },
+    {
+      date: '2027-02-01',
       title: 'Warsztaty dla rodziców',
       time: '17:00 - 19:00',
       description: 'Metoda Montessori w domu'
     },
     {
-      date: '20',
-      month: 'Lut',
+      date: '2027-02-20',
       title: 'Ferie zimowe',
       time: 'Cały dzień',
       description: 'Przerwa w zajęciach lekcyjnych'
     },
     {
-      date: '01',
-      month: 'Mar',
+      date: '2027-03-01',
       title: 'Zakończenie rekrutacji',
       time: '16:00',
       description: 'Ostateczny termin składania dokumentów'
     },
     {
-      date: '15',
-      month: 'Mar',
+      date: '2027-03-15',
       title: 'Festiwal Talentów',
       time: '15:00 - 18:00',
       description: 'Prezentacja umiejętności uczniów'
     },
     {
-      date: '22',
-      month: 'Mar',
+      date: '2027-03-22',
       title: 'Wywiadówka',
       time: '17:00 - 19:00',
       description: 'Spotkanie z rodzicami - semestr wiosenny'
@@ -115,7 +115,7 @@ export function News() {
 
           <TabsContent value="news" className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
-              {news.map((item) => (
+              {[...news].sort((a, b) => a.date.localeCompare(b.date)).map((item) => (
                 <Card key={item.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-start justify-between mb-3">
@@ -145,14 +145,17 @@ export function News() {
 
           <TabsContent value="calendar">
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {events.map((event, index) => (
-                <Card key={index} className="hover:shadow-lg transition-shadow">
+              {events.map((event) => (
+                <Card key={event.date} className="hover:shadow-lg transition-shadow">
                   <CardContent className="p-6">
                     <div className="flex gap-4">
                       <div className="flex-shrink-0 text-center">
-                        <div className="w-16 h-16 bg-blue-600 text-white rounded-lg flex flex-col items-center justify-center">
-                          <div className="text-2xl">{event.date}</div>
-                          <div className="text-xs uppercase">{event.month}</div>
+                        <div className="w-20 h-20 bg-blue-600 text-white rounded-lg flex flex-col items-center justify-center">
+                          <div className="text-2xl">{new Date(`${event.date}T00:00:00Z`).getUTCDate()}</div>
+                          <div className="text-xs uppercase">
+                            {new Intl.DateTimeFormat('pl-PL', { month: 'short', timeZone: 'UTC' }).format(new Date(`${event.date}T00:00:00Z`))}
+                          </div>
+                          <div className="text-xs">{event.date.slice(0, 4)}</div>
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">

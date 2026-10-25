@@ -17,6 +17,7 @@ import {
 import { format } from 'date-fns'
 import { pl } from 'date-fns/locale'
 import { toast } from 'sonner'
+import { getDemoRole, signOutFromDemo } from '../utils/demoAccess'
 
 /** Dane zalogowanego nauczyciela. */
 interface User { name: string; email: string }
@@ -79,6 +80,7 @@ export function TeacherPanelPage() {
   const [infos, setInfos]                 = useState<InfoItem[]>([])
   const [documents, setDocuments]         = useState<SchoolDocument[]>([])
   const [loading, setLoading]             = useState(true)
+  const [demoMode, setDemoMode]           = useState(false)
   const [docsLoading, setDocsLoading]     = useState(false)
   const [accessToken, setAccessToken]     = useState('')
 
@@ -106,6 +108,13 @@ export function TeacherPanelPage() {
    */
   const checkAuth = async () => {
     try {
+      if (getDemoRole() === 'teacher') {
+        setDemoMode(true)
+        setUser({ name: 'Nauczyciel demonstracyjny', email: 'nauczyciel@gmail' })
+        setLoading(false)
+        return
+      }
+
       const { data: { session }, error } = await supabase.auth.getSession()
       if (error || !session) { navigate('/logowanie-nauczyciela'); return }
       if (session.user.user_metadata?.role !== 'teacher') {
@@ -170,6 +179,11 @@ export function TeacherPanelPage() {
 
   /** Kończy sesję Supabase i wraca na stronę główną. */
   const handleLogout = async () => {
+    signOutFromDemo()
+    if (demoMode) {
+      navigate('/')
+      return
+    }
     await supabase.auth.signOut()
     navigate('/')
   }
@@ -402,6 +416,61 @@ export function TeacherPanelPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+      </div>
+    )
+  }
+
+  if (demoMode) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
+        <header className="border-b bg-white shadow-sm">
+          <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
+            <div>
+              <h1 className="text-xl font-semibold text-gray-900">Panel Nauczyciela</h1>
+              <p className="text-sm text-gray-500">{user.name}</p>
+            </div>
+            <Button variant="outline" onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Wyloguj
+            </Button>
+          </div>
+        </header>
+        <main className="mx-auto max-w-5xl space-y-6 px-4 py-8">
+          <div role="note" className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950">
+            Tryb demonstracyjny: treści są przykładowe. Dodawanie, usuwanie i przesyłanie danych jest wyłączone.
+          </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base"><Bell className="h-4 w-4" /> Aktualności</CardTitle>
+                <CardDescription>Przykładowe ogłoszenie</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="font-medium text-gray-900">Witamy w panelu nauczyciela</p>
+                <p className="mt-2 text-sm text-gray-600">To demonstracyjna treść. Nie została opublikowana.</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base"><Calendar className="h-4 w-4" /> Zadania</CardTitle>
+                <CardDescription>Przykładowy termin</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="font-medium text-gray-900">Przykładowe zadanie</p>
+                <p className="mt-2 text-sm text-gray-600">Termin: 15 stycznia 2027</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base"><Info className="h-4 w-4" /> Informacje</CardTitle>
+                <CardDescription>Podgląd funkcji panelu</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-600">W prawdziwym panelu nauczyciel może zarządzać informacjami dla uczniów.</p>
+              </CardContent>
+            </Card>
+          </div>
+        </main>
       </div>
     )
   }
