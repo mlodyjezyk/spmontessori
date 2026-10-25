@@ -156,7 +156,11 @@ export function TeacherPanelPage() {
     try {
       const res = await fetch(`${serverUrl}/documents`)
       const data = await res.json()
-      if (res.ok) setDocuments(data.documents || [])
+      if (res.ok) {
+        setDocuments(data.documents || [])
+      } else {
+        toast.error(data.error || 'Nie udało się wczytać dokumentów')
+      }
     } catch {
       toast.error('Nie udało się wczytać dokumentów')
     } finally {
@@ -366,6 +370,10 @@ export function TeacherPanelPage() {
         } finally {
           setUploadingDoc(false)
         }
+      }
+      reader.onerror = () => {
+        toast.error('Nie udało się odczytać wybranego pliku')
+        setUploadingDoc(false)
       }
       reader.readAsDataURL(selectedFile)
     } catch {

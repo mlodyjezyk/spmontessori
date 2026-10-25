@@ -1,36 +1,19 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { supabase, serverUrl } from '../utils/supabaseClient'
+import { supabase } from '../utils/supabaseClient'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { GraduationCap, AlertCircle } from 'lucide-react'
 
-/**
- * Strona logowania nauczyciela do panelu administracyjnego.
- *
- * Logika jest identyczna jak przy logowaniu ucznia, ale
- * wymagana rola to "teacher". Przy montowaniu komponentu
- * wysyłane jest żądanie /health do serwera Edge Function,
- * żeby go „obudzić" przed właściwym logowaniem (cold start).
- */
+/** Strona logowania nauczyciela do panelu administracyjnego. */
 export function TeacherLoginPage() {
   const navigate = useNavigate()
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading]   = useState(false)
   const [error, setError]       = useState('')
-
-  /**
-   * Pinguje endpoint /health przy montowaniu komponentu.
-   * Supabase Edge Functions mają cold start — pierwsze żądanie
-   * po dłuższej przerwie może trwać kilka sekund.
-   * Wcześniejszy ping skraca czas odpowiedzi przy właściwym logowaniu.
-   */
-  useEffect(() => {
-    fetch(`${serverUrl}/health`).catch(() => {})
-  }, [])
 
   /**
    * Obsługuje wysłanie formularza logowania nauczyciela.

@@ -1,8 +1,11 @@
 import { Briefcase, MapPin, Clock, ArrowRight } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 
 export function JobOffersPage() {
+  const [demoApplication, setDemoApplication] = useState('');
+
   const offers = [
     {
       id: 1,
@@ -81,11 +84,19 @@ export function JobOffersPage() {
                       </div>
                     </div>
                   </div>
-                  <Button className="shrink-0 bg-blue-600 hover:bg-blue-700">
-                    Aplikuj teraz <ArrowRight className="ml-2 w-4 h-4" />
+                  <Button
+                    className="shrink-0 bg-blue-600 hover:bg-blue-700"
+                    onClick={() => setDemoApplication(offer.title)}
+                  >
+                    Aplikuj (demo) <ArrowRight className="ml-2 w-4 h-4" />
                   </Button>
                 </div>
               </CardHeader>
+              {demoApplication === offer.title && (
+                <div role="status" className="mx-6 mb-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-900">
+                  Dziękujemy za zainteresowanie. Tryb demo — aplikacja nie została wysłana ani zapisana.
+                </div>
+              )}
               <CardContent>
                 <p className="text-gray-700 mb-4 leading-relaxed">
                   {offer.description}
@@ -106,13 +117,21 @@ export function JobOffersPage() {
         <div className="mt-12 bg-white rounded-2xl p-8 shadow-sm text-center">
           <h3 className="text-2xl font-semibold text-gray-900 mb-4">Nie znalazłeś oferty dla siebie?</h3>
           <p className="text-gray-600 mb-6">
-            Zawsze jesteśmy otwarci na utalentowanych pedagogów. Prześlij nam swoje CV, a odezwiemy się, gdy pojawi się odpowiednie stanowisko.
+            Zgłoszenie spontaniczne jest dostępne demonstracyjnie. Żadne CV ani dane nie zostaną wysłane lub zapisane.
           </p>
-          <a href="mailto:rekrutacja@szkola-montessori.pl">
-            <Button variant="outline" size="lg" className="border-blue-600 text-blue-600 hover:bg-blue-50">
-              Wyślij CV spontanicznie
-            </Button>
-          </a>
+          <Button
+            variant="outline"
+            size="lg"
+            className="border-blue-600 text-blue-600 hover:bg-blue-50"
+            onClick={() => setDemoApplication('spontaneous')}
+          >
+            Przetestuj zgłoszenie
+          </Button>
+          {demoApplication === 'spontaneous' && (
+            <p role="status" className="mt-4 text-sm text-green-800">
+              Dziękujemy za przetestowanie. Żadne CV ani dane nie zostały wysłane.
+            </p>
+          )}
         </div>
       </div>
     </div>

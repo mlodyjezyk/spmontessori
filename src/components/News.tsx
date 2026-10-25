@@ -1,14 +1,17 @@
 import { Calendar, Clock } from 'lucide-react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { EMAIL_WITH_DOMAIN } from '../utils/formValidation';
 
 export function News() {
+  const [newsletterDemoComplete, setNewsletterDemoComplete] = useState(false);
   const news = [
     {
       id: 1,
       title: 'Dzień Otwarty - 15 lutego 2026',
-      date: '2026-02-15',
+      date: '2026-11-15',
       category: 'Rekrutacja',
       excerpt: 'Zapraszamy wszystkich zainteresowanych rodziców na dzień otwarty. Możliwość zwiedzenia szkoły, poznania kadry i metody Montessori.',
       time: '10:00 - 14:00'
@@ -16,7 +19,7 @@ export function News() {
     {
       id: 2,
       title: 'Sukces naszych uczniów w konkursie matematycznym',
-      date: '2025-12-20',
+      date: '2026-12-20',
       category: 'Osiągnięcia',
       excerpt: 'Uczniowie klasy 7 zajęli I i II miejsce w wojewódzkim konkursie matematycznym. Gratulujemy!',
       time: null
@@ -24,7 +27,7 @@ export function News() {
     {
       id: 3,
       title: 'Warsztaty dla rodziców - Metoda Montessori w domu',
-      date: '2026-02-01',
+      date: '2027-02-01',
       category: 'Warsztat',
       excerpt: 'Cykl warsztatów dla rodziców, jak wspierać rozwój dziecka w duchu Montessori w codziennym życiu.',
       time: '17:00 - 19:00'
@@ -32,7 +35,7 @@ export function News() {
     {
       id: 4,
       title: 'Zimowy obóz naukowy',
-      date: '2026-01-20',
+      date: '2027-01-20',
       category: 'Wydarzenie',
       excerpt: 'Zapraszamy uczniów klas 4-8 na zimowy obóz naukowy w Zakopanem. Program łączy edukację z rekreacją.',
       time: '20-27 stycznia'
@@ -169,17 +172,45 @@ export function News() {
             <div className="mt-12 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-8 text-center">
               <Calendar className="mx-auto mb-4 text-blue-600" size={48} />
               <h3 className="text-xl text-gray-900 mb-2">Chcesz być na bieżąco?</h3>
-              <p className="text-gray-600 mb-4">Zapisz się do naszego newslettera i otrzymuj powiadomienia o najważniejszych wydarzeniach</p>
-              <div className="flex gap-2 max-w-md mx-auto">
-                <input 
-                  type="email" 
-                  placeholder="Twój adres email"
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                />
-                <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                  Zapisz się
-                </button>
-              </div>
+              {newsletterDemoComplete ? (
+                <div role="status" className="mx-auto max-w-md rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-900">
+                  Zapis demonstracyjny zakończony. Adres nie został wysłany ani zapisany.
+                  <button
+                    type="button"
+                    onClick={() => setNewsletterDemoComplete(false)}
+                    className="ml-2 font-medium underline"
+                  >
+                    Wróć
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <p className="text-gray-600 mb-4">
+                    Tryb demonstracyjny — zapis nie zostanie wysłany ani zachowany.
+                  </p>
+                  <form
+                    className="flex gap-2 max-w-md mx-auto"
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      setNewsletterDemoComplete(true);
+                    }}
+                  >
+                    <label className="sr-only" htmlFor="newsletter-email">Adres email</label>
+                    <input
+                      id="newsletter-email"
+                      type="email"
+                      required
+                      pattern={EMAIL_WITH_DOMAIN}
+                      title="Wpisz adres w formacie imie@domena.pl"
+                      placeholder="Twój adres email"
+                      className="flex-1 min-w-0 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    />
+                    <button type="submit" className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                      Przetestuj zapis
+                    </button>
+                  </form>
+                </>
+              )}
             </div>
           </TabsContent>
         </Tabs>

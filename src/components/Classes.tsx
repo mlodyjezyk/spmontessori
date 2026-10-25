@@ -15,7 +15,7 @@ export function Classes() {
       features: [
         'Nauka czytania i pisania metodą Montessori',
         'Matematyka konkretna - materiały sensoryczne',
-        'Kosmiczne edukacja - poznawanie świata',
+        'Kosmiczna edukacja - poznawanie świata',
         'Rozwijanie umiejętności społecznych',
         'Zajęcia artystyczne i muzyczne',
         'Wychowanie fizyczne dostosowane do wieku'

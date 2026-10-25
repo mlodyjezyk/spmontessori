@@ -1,10 +1,14 @@
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
+import { useState } from 'react';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
+import { EMAIL_WITH_DOMAIN } from '../utils/formValidation';
 
 export function Contact() {
+  const [demoComplete, setDemoComplete] = useState(false);
+
   return (
     <section id="kontakt" className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -95,38 +99,55 @@ export function Contact() {
           <div>
             <h3 className="text-2xl text-gray-900 mb-6">Napisz do nas</h3>
             <Card>
-              <CardContent className="p-6">
-                <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-                  <div>
-                    <label htmlFor="name" className="block text-sm text-gray-700 mb-2">
-                      Imię i nazwisko
-                    </label>
-                    <Input id="name" placeholder="Jan Kowalski" />
+              <CardContent className="p-6 space-y-4">
+                {demoComplete ? (
+                  <div role="status" className="rounded-lg border border-green-200 bg-green-50 p-4 text-green-900">
+                    <p className="font-medium">Dziękujemy za przetestowanie formularza.</p>
+                    <p className="mt-1 text-sm">Tryb demonstracyjny: wiadomość nie została wysłana ani zapisana.</p>
+                    <Button type="button" variant="outline" className="mt-4" onClick={() => setDemoComplete(false)}>
+                      Wróć do formularza
+                    </Button>
                   </div>
-                  <div>
-                    <label htmlFor="email" className="block text-sm text-gray-700 mb-2">
-                      Email
-                    </label>
-                    <Input id="email" type="email" placeholder="jan.kowalski@email.pl" />
-                  </div>
-                  <div>
-                    <label htmlFor="phone" className="block text-sm text-gray-700 mb-2">
-                      Telefon
-                    </label>
-                    <Input id="phone" type="tel" placeholder="+48 123 456 789" />
-                  </div>
-                  <div>
-                    <label htmlFor="message" className="block text-sm text-gray-700 mb-2">
-                      Wiadomość
-                    </label>
-                    <Textarea 
-                      id="message"
-                      placeholder="Twoja wiadomość..."
-                      rows={4}
-                    />
-                  </div>
-                  <Button type="submit" className="w-full">Wyślij wiadomość</Button>
-                </form>
+                ) : (
+                  <>
+                    <p className="text-sm text-amber-900">
+                      Tryb demonstracyjny — nie wpisuj prawdziwych danych. Formularz nie wysyła ani nie zapisuje wiadomości.
+                    </p>
+                    <form
+                      className="space-y-4"
+                      onSubmit={(event) => {
+                        event.preventDefault();
+                        setDemoComplete(true);
+                      }}
+                    >
+                      <div>
+                        <label htmlFor="contact-name" className="mb-2 block text-sm text-gray-700">Imię i nazwisko</label>
+                        <Input id="contact-name" name="name" required minLength={2} placeholder="Jan Kowalski" />
+                      </div>
+                      <div>
+                        <label htmlFor="contact-email" className="mb-2 block text-sm text-gray-700">Email</label>
+                        <Input
+                          id="contact-email"
+                          name="email"
+                          type="email"
+                          required
+                          pattern={EMAIL_WITH_DOMAIN}
+                          title="Wpisz adres w formacie imie@domena.pl"
+                          placeholder="jan@example.pl"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="contact-phone" className="mb-2 block text-sm text-gray-700">Telefon (opcjonalnie)</label>
+                        <Input id="contact-phone" name="phone" type="tel" placeholder="+48 123 456 789" />
+                      </div>
+                      <div>
+                        <label htmlFor="contact-message" className="mb-2 block text-sm text-gray-700">Wiadomość</label>
+                        <Textarea id="contact-message" name="message" required minLength={3} placeholder="Twoja wiadomość..." rows={4} />
+                      </div>
+                      <Button type="submit" className="w-full">Wyślij wiadomość demonstracyjną</Button>
+                    </form>
+                  </>
+                )}
               </CardContent>
             </Card>
           </div>

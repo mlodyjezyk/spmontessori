@@ -58,18 +58,31 @@ export function DocumentsPage() {
   }, []);
 
   const loadDocuments = async () => {
+    setError('');
     try {
       setLoading(true);
       const res = await fetch(`${serverUrl}/documents`);
-      const data = await res.json();
-      if (res.ok) {
-        setDocuments(data.documents || []);
-      } else {
-        setError(data.error || 'Błąd podczas wczytywania dokumentów');
+      if (!res.ok) {
+        let message = 'Błąd podczas wczytywania dokumentów';
+        try {
+          const data = await res.json();
+          if (typeof data.error === 'string') message = data.error;
+        } catch {
+          // Keep the user-facing fallback when the server response is not JSON.
+        }
+        throw new Error(message);
       }
+
+      const data: unknown = await res.json();
+      if (!data || typeof data !== 'object' || !Array.isArray((data as { documents?: unknown }).documents)) {
+        throw new Error('Serwer zwrócił nieprawidłową listę dokumentów');
+      }
+      setDocuments((data as { documents: Document[] }).documents);
     } catch (err) {
       console.error('Load documents error:', err);
-      setError('Nie udało się wczytać dokumentów. Sprawdź połączenie z internetem.');
+      setError(err instanceof Error
+        ? err.message
+        : 'Nie udało się wczytać dokumentów. Sprawdź połączenie z internetem.');
     } finally {
       setLoading(false);
     }

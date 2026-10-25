@@ -65,6 +65,7 @@ export function StudentPlatformPage() {
   const [assignments, setAssignments]     = useState<Assignment[]>([])
   const [infos, setInfos]                 = useState<InfoItem[]>([])
   const [loading, setLoading]             = useState(true)
+  const [loadError, setLoadError]         = useState(false)
 
   useEffect(() => {
     checkAuth()
@@ -110,12 +111,17 @@ export function StudentPlatformPage() {
    */
   const loadData = async (token: string) => {
     setLoading(true)
+    setLoadError(false)
     try {
       const [annRes, assRes, infRes] = await Promise.all([
         fetch(`${serverUrl}/announcements`, { headers: authHeader(token) }),
         fetch(`${serverUrl}/assignments`,   { headers: authHeader(token) }),
         fetch(`${serverUrl}/info`,          { headers: authHeader(token) }),
       ])
+
+      if (!annRes.ok || !assRes.ok || !infRes.ok) {
+        throw new Error('One or more student data requests failed')
+      }
 
       const [ann, ass, inf] = await Promise.all([
         annRes.json(),
@@ -126,8 +132,9 @@ export function StudentPlatformPage() {
       if (annRes.ok) setAnnouncements(ann.announcements || [])
       if (assRes.ok) setAssignments(ass.assignments || [])
       if (infRes.ok) setInfos(inf.infos || [])
-    } catch {
-      // przy błędzie sieciowym zakładki pokażą pusty stan
+    } catch (error) {
+      console.error('Load student platform data error:', error)
+      setLoadError(true)
     } finally {
       setLoading(false)
     }
@@ -199,7 +206,7 @@ export function StudentPlatformPage() {
           </TabsList>
 
           <TabsContent value="announcements">
-            {loading ? <Spinner /> : announcements.length === 0 ? <Empty label="Brak aktualności" /> : (
+            {loading ? <Spinner /> : loadError ? <Empty label="Nie udało się wczytać danych. Odśwież stronę i spróbuj ponownie." /> : announcements.length === 0 ? <Empty label="Brak aktualności" /> : (
               <div className="space-y-4">
                 {announcements.map((a) => (
                   <Card key={a.id} className="shadow-sm border-0">
@@ -219,7 +226,7 @@ export function StudentPlatformPage() {
           </TabsContent>
 
           <TabsContent value="assignments">
-            {loading ? <Spinner /> : assignments.length === 0 ? <Empty label="Brak zadań" /> : (
+            {loading ? <Spinner /> : loadError ? <Empty label="Nie udało się wczytać danych. Odśwież stronę i spróbuj ponownie." /> : assignments.length === 0 ? <Empty label="Brak zadań" /> : (
               <div className="space-y-4">
                 {assignments.map((a) => (
                   <Card key={a.id} className="shadow-sm border-0">
@@ -242,7 +249,7 @@ export function StudentPlatformPage() {
           </TabsContent>
 
           <TabsContent value="info">
-            {loading ? <Spinner /> : infos.length === 0 ? <Empty label="Brak informacji" /> : (
+            {loading ? <Spinner /> : loadError ? <Empty label="Nie udało się wczytać danych. Odśwież stronę i spróbuj ponownie." /> : infos.length === 0 ? <Empty label="Brak informacji" /> : (
               <div className="space-y-4">
                 {infos.map((item) => (
                   <Card key={item.id} className="shadow-sm border-0">
