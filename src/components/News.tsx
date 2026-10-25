@@ -5,6 +5,16 @@ import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { EMAIL_WITH_DOMAIN } from '../utils/formValidation';
 
+const formatDate = (dateStr: string) => {
+  if (dateStr.includes(' - ')) {
+    const [start, end] = dateStr.split(' - ')
+    const d1 = new Date(start).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' })
+    const d2 = new Date(end).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' })
+    return ${d1} – ${d2}
+  }
+  return new Date(dateStr).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' })
+}
+
 export function News() {
   const [newsletterDemoComplete, setNewsletterDemoComplete] = useState(false);
   const news = [
@@ -27,7 +37,7 @@ export function News() {
     {
       id: 4,
       title: 'Zimowy obóz naukowy',
-      date: '2027-01-20 - 2027-01-27',
+      date: '2027-01-20',
       category: 'Wydarzenie',
       excerpt: 'Zapraszamy uczniów klas 4-8 na zimowy obóz naukowy w Zakopanem. Program łączy edukację z rekreacją.',
       time: '20-27 stycznia'
@@ -124,8 +134,8 @@ export function News() {
                       </Badge>
                       <div className="flex items-center gap-2 text-sm text-gray-500">
                         <Clock size={16} />
-                        <span>{new Date(item.date).toLocaleDateString('pl-PL')}</span>
-                      </div>
+                        <span>{formatDate(item.date)}</span>
+                      </div> 
                     </div>
                     <CardTitle className="text-xl text-gray-900">{item.title}</CardTitle>
                   </CardHeader>
