@@ -9,7 +9,7 @@ import { EMAIL_WITH_DOMAIN } from '../utils/formValidation'
 
 type ClassSuggestion =
   | { status: 'valid'; classNumber: number; message: string }
-  | { status: 'preschool' | 'out_of_range'; message: string }
+  | { status: 'ineligible' | 'out_of_range'; message: string }
 
 type FormErrors = Record<string, string>
 
@@ -29,15 +29,17 @@ const FIELD_ORDER = [
 ]
 
 function getClassSuggestion(dateString: string): ClassSuggestion | null {
-  const birthYear = Number(dateString.slice(0, 4))
-  if (!dateString || !Number.isInteger(birthYear)) return null
+  if (!dateString) return null
 
-  const classNumber = 2026 - birthYear - 6
+  const birthYear = Number(dateString.slice(0, 4))
+  if (!Number.isInteger(birthYear) || birthYear < 1900) return null
+
+  const classNumber = 2027 - birthYear - 6
 
   if (classNumber <= 0) {
     return {
-      status: 'preschool',
-      message: `Wiek przedszkolny / zerówka (rocznik ${birthYear})`,
+      status: 'ineligible',
+      message: `Rocznik ${birthYear} nie kwalifikuje się do klas 1–8 w roku szkolnym 2027/2028`,
     }
   }
 
@@ -202,7 +204,7 @@ export function RecruitmentForm() {
                   className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${
                     classSuggestion.status === 'valid'
                       ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-                      : classSuggestion.status === 'preschool'
+                      : classSuggestion.status === 'ineligible'
                         ? 'border-amber-200 bg-amber-50 text-amber-800'
                         : 'border-zinc-200 bg-zinc-100 text-zinc-700'
                   }`}
@@ -210,7 +212,7 @@ export function RecruitmentForm() {
                 >
                   {classSuggestion.status === 'valid' ? (
                     <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                  ) : classSuggestion.status === 'preschool' ? (
+                  ) : classSuggestion.status === 'ineligible' ? (
                     <Info className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                   ) : (
                     <AlertCircle className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
