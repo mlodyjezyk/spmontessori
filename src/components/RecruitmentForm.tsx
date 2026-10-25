@@ -23,6 +23,14 @@ const FIELD_ORDER = [
 ]
 
 const REQUIRED = 'Pole wymaga wypełnienia'
+const NAME_MIN_LENGTH = 2
+const EMAIL_WITH_DOMAIN = /^[^\s@]+@(?:[^\s.@]+\.)+[^\s.@]{2,}$/
+
+function validateName(value: string): string | null {
+  if (!value.trim()) return REQUIRED
+  if (value.trim().length < NAME_MIN_LENGTH) return 'Wpisz co najmniej 2 znaki'
+  return null
+}
 
 function getSuggestedClass(dateString: string): SuggestionResult | null {
   if (!dateString) return null
@@ -77,15 +85,21 @@ export function RecruitmentForm() {
 
   const validate = (): ErrorMap => {
     const e: ErrorMap = {}
-    if (!getVal('childFirstName').trim()) e.childFirstName = REQUIRED
-    if (!getVal('childLastName').trim()) e.childLastName = REQUIRED
+    const childFirstNameError = validateName(getVal('childFirstName'))
+    if (childFirstNameError) e.childFirstName = childFirstNameError
+    const childLastNameError = validateName(getVal('childLastName'))
+    if (childLastNameError) e.childLastName = childLastNameError
     if (!getVal('birthDate').trim()) e.birthDate = REQUIRED
     if (!getVal('pesel').trim()) e.pesel = REQUIRED
     if (!getVal('class').trim()) e.class = 'Wybierz klasę'
-    if (!getVal('parentFirstName').trim()) e.parentFirstName = REQUIRED
-    if (!getVal('parentLastName').trim()) e.parentLastName = REQUIRED
+    const parentFirstNameError = validateName(getVal('parentFirstName'))
+    if (parentFirstNameError) e.parentFirstName = parentFirstNameError
+    const parentLastNameError = validateName(getVal('parentLastName'))
+    if (parentLastNameError) e.parentLastName = parentLastNameError
     if (!getVal('phone').trim()) e.phone = REQUIRED
-    if (!getVal('email').trim()) e.email = REQUIRED
+    const email = getVal('email').trim()
+    if (!email) e.email = REQUIRED
+    else if (!EMAIL_WITH_DOMAIN.test(email)) e.email = 'Wpisz poprawny adres, np. imie@domena.pl'
     if (!getVal('address').trim()) e.address = REQUIRED
     if (!getVal('consent1')) e.consent1 = 'Zgoda jest wymagana'
     if (!getVal('consent2')) e.consent2 = 'Potwierdź zapoznanie się z regulaminem'
@@ -171,7 +185,7 @@ export function RecruitmentForm() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} noValidate className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>Dane dziecka</CardTitle>
@@ -183,6 +197,8 @@ export function RecruitmentForm() {
                 <Input
                   id="childFirstName"
                   placeholder="np. Jan"
+                  minLength={NAME_MIN_LENGTH}
+                  required
                   onChange={() => clearError('childFirstName')}
                   aria-invalid={!!errors.childFirstName}
                   aria-describedby={errors.childFirstName ? 'childFirstName-error' : undefined}
@@ -195,6 +211,8 @@ export function RecruitmentForm() {
                 <Input
                   id="childLastName"
                   placeholder="np. Kowalski"
+                  minLength={NAME_MIN_LENGTH}
+                  required
                   onChange={() => clearError('childLastName')}
                   aria-invalid={!!errors.childLastName}
                   aria-describedby={errors.childLastName ? 'childLastName-error' : undefined}
@@ -287,6 +305,8 @@ export function RecruitmentForm() {
                 <Input
                   id="parentFirstName"
                   placeholder="np. Anna"
+                  minLength={NAME_MIN_LENGTH}
+                  required
                   onChange={() => clearError('parentFirstName')}
                   aria-invalid={!!errors.parentFirstName}
                   aria-describedby={errors.parentFirstName ? 'parentFirstName-error' : undefined}
@@ -299,6 +319,8 @@ export function RecruitmentForm() {
                 <Input
                   id="parentLastName"
                   placeholder="np. Kowalska"
+                  minLength={NAME_MIN_LENGTH}
+                  required
                   onChange={() => clearError('parentLastName')}
                   aria-invalid={!!errors.parentLastName}
                   aria-describedby={errors.parentLastName ? 'parentLastName-error' : undefined}
@@ -327,6 +349,7 @@ export function RecruitmentForm() {
                   id="email"
                   type="email"
                   placeholder="email@przyklad.pl"
+                  required
                   onChange={() => clearError('email')}
                   aria-invalid={!!errors.email}
                   aria-describedby={errors.email ? 'email-error' : undefined}
