@@ -141,6 +141,7 @@ const PAGE_ENTRIES: SearchEntry[] = [
 
 function normalize(value: string): string {
   return value
+    .replace(/ł/gi, "l")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLocaleLowerCase("pl-PL")
