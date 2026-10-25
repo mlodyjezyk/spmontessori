@@ -37,7 +37,7 @@ export function News() {
     {
       id: 4,
       title: 'Zimowy obóz naukowy',
-      date: '2027-01-20',
+      date: '2027-01-20 - 2027-01-27',
       category: 'Wydarzenie',
       excerpt: 'Zapraszamy uczniów klas 4-8 na zimowy obóz naukowy w Zakopanem. Program łączy edukację z rekreacją.',
       time: '20-27 stycznia'
