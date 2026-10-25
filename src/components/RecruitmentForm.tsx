@@ -53,7 +53,7 @@ function getClassSuggestion(dateString: string): ClassSuggestion | null {
   ) {
     return {
       status: 'invalid_date',
-      message: 'Nieprawidłowa data urodzenia. Wpisz poprawną datę.',
+      message: 'Dla dinozarów programu nie przewidziano. Wpisz poprawną datę.',
     }
   }
 
@@ -67,7 +67,7 @@ function getClassSuggestion(dateString: string): ClassSuggestion | null {
   if (dateString > todayString) {
     return {
       status: 'invalid_date',
-      message: 'Data urodzenia nie może być z przyszłości. Wpisz poprawną datę.',
+      message: 'Nienarodzonych, nie nauczymy. Wpisz poprawną datę.',
     }
   }
 
