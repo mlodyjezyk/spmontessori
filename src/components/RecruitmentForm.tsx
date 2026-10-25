@@ -31,8 +31,16 @@ const FIELD_ORDER = [
 function getClassSuggestion(dateString: string): ClassSuggestion | null {
   if (!dateString) return null
 
-  const birthYear = Number(dateString.slice(0, 4))
-  if (!Number.isInteger(birthYear) || birthYear < 1900) return null
+
+  if (!Number.isInteger(birthYear) || birthYear < 1900) {
+    return {
+      status: 'ineligible',
+      message: 'Nieprawidłowa data urodzenia. Wpisz poprawną datę.',
+    }
+  }
+  const classNumber = 2027 - birthYear - 6
+
+{
 
   const classNumber = 2027 - birthYear - 6
 
