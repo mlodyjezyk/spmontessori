@@ -147,6 +147,52 @@ function normalize(value: string): string {
     .trim();
 }
 
+function differsByOneEdit(left: string, right: string): boolean {
+  if (Math.abs(left.length - right.length) > 1) return false;
+
+  let leftIndex = 0;
+  let rightIndex = 0;
+  let edits = 0;
+
+  while (leftIndex < left.length && rightIndex < right.length) {
+    if (left[leftIndex] === right[rightIndex]) {
+      leftIndex += 1;
+      rightIndex += 1;
+      continue;
+    }
+
+    if (edits > 0) return false;
+    edits += 1;
+
+    if (
+      left.length === right.length
+      && leftIndex + 1 < left.length
+      && rightIndex + 1 < right.length
+      && left[leftIndex] === right[rightIndex + 1]
+      && left[leftIndex + 1] === right[rightIndex]
+    ) {
+      leftIndex += 2;
+      rightIndex += 2;
+    } else if (left.length > right.length) {
+      leftIndex += 1;
+    } else if (right.length > left.length) {
+      rightIndex += 1;
+    } else {
+      leftIndex += 1;
+      rightIndex += 1;
+    }
+  }
+
+  return edits + (left.length - leftIndex) + (right.length - rightIndex) <= 1;
+}
+
+function matchesTerm(text: string, term: string): boolean {
+  if (text.includes(term)) return true;
+  if (term.length < 5) return false;
+
+  return (text.match(/[\p{L}\p{N}]+/gu) || []).some((word) => differsByOneEdit(term, word));
+}
+
 function scoreEntry(entry: SearchEntry, query: string): number {
   const terms = normalize(query).split(/\s+/).filter(Boolean);
   if (!terms.length) return 0;
@@ -156,12 +202,14 @@ function scoreEntry(entry: SearchEntry, query: string): number {
   const keywords = normalize(entry.keywords);
   const searchable = `${title} ${description} ${keywords}`;
 
-  if (!terms.every((term) => searchable.includes(term))) return 0;
+  if (!terms.every((term) => matchesTerm(searchable, term))) return 0;
 
   return terms.reduce((score, term) => {
-    if (title.includes(term)) return score + (title.startsWith(term) ? 12 : 8);
-    if (keywords.includes(term)) return score + 4;
-    if (description.includes(term)) return score + 2;
+    if (matchesTerm(title, term)) {
+      return score + (title.includes(term) && title.startsWith(term) ? 12 : 8);
+    }
+    if (matchesTerm(keywords, term)) return score + 4;
+    if (matchesTerm(description, term)) return score + 2;
     return score;
   }, 0);
 }
@@ -248,11 +296,11 @@ export function SearchCommand({ open, setOpen }: SearchCommandProps) {
         const description = normalize(document.description || "");
         const category = normalize(document.category || "");
         const searchable = `${title} ${description} ${category}`;
-        const matches = terms.every((term) => searchable.includes(term));
+        const matches = terms.every((term) => matchesTerm(searchable, term));
         const score = terms.reduce((total, term) => {
-          if (title.includes(term)) return total + 8;
-          if (category.includes(term)) return total + 4;
-          if (description.includes(term)) return total + 2;
+          if (matchesTerm(title, term)) return total + 8;
+          if (matchesTerm(category, term)) return total + 4;
+          if (matchesTerm(description, term)) return total + 2;
           return total;
         }, 0);
         return { document, score: matches ? score : 0 };
