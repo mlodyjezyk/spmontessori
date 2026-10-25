@@ -13,27 +13,28 @@ select[data-error='true'] {
 
 .error-tooltip,
 .error-tooltip-inline {
-  display: inline-flex;
+  display: flex;
   gap: 8px;
-  align-items: center;
-  background: rgba(220, 38, 38, 0.95);
-  color: white;
-  padding: 6px 10px;
+  align-items: flex-start;
+  width: fit-content;
+  max-width: 100%;
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  padding: 8px 10px;
   border-radius: 8px;
   font-size: 0.875rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
   margin-top: 6px;
 }
 
 .error-tooltip strong,
 .error-tooltip-inline strong {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.15);
+  display: block;
+  min-width: 0;
+  font-size: inherit;
   font-weight: 700;
 }
 

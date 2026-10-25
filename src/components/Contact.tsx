@@ -120,7 +120,7 @@ export function Contact() {
                       Wiadomość
                     </label>
                     <Textarea 
-                      id="message" 
+                      id="message"
                       placeholder="Twoja wiadomość..."
                       rows={4}
                     />

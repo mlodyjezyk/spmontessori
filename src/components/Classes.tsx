@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { GraduationCap, Users2, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export function Classes() {
   const classGroups = [
@@ -102,12 +103,18 @@ export function Classes() {
             Zapisy trwają! Zapraszamy na dzień otwarty, aby poznać naszą szkołę i metodę nauczania.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white text-blue-600 px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors">
+            <Link
+              to="/kontakt"
+              className="bg-white text-blue-600 px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors"
+            >
               Umów wizytę
-            </button>
-            <button className="border-2 border-white text-white px-8 py-3 rounded-lg hover:bg-white/10 transition-colors">
+            </Link>
+            <Link
+              to="/dla-rodzicow"
+              className="border-2 border-white text-white px-8 py-3 rounded-lg hover:bg-white/10 transition-colors"
+            >
               Pobierz dokumenty
-            </button>
+            </Link>
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { Calendar, Clock, ArrowRight } from 'lucide-react';
+import { Calendar, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
@@ -134,10 +134,6 @@ export function News() {
                         <span>{item.time}</span>
                       </div>
                     )}
-                    <button className="text-blue-600 hover:text-blue-700 flex items-center gap-2 text-sm">
-                      Czytaj więcej
-                      <ArrowRight size={16} />
-                    </button>
                   </CardContent>
                 </Card>
               ))}
