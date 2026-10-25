@@ -10,7 +10,7 @@ const formatDate = (dateStr: string) => {
     const [start, end] = dateStr.split(' - ')
     const d1 = new Date(start).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' })
     const d2 = new Date(end).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' })
-    return ${d1} – ${d2}
+    return `${d1} – ${d2}`
   }
   return new Date(dateStr).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' })
 }
